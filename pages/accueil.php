@@ -17,7 +17,7 @@
             <div class="flex flex-wrap items-center">
                 <div class="w-full md:w-1/2">
                     <div class="overflow-hidden rounded-lg shadow-lg">
-                        <img src="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/public/images/carousel1.jpg" alt="Étudiant heureux" class="w-full object-cover">
+                        <img src="/public/images/carousel1.jpg" alt="Étudiant heureux" class="w-full object-cover">
                     </div>
                 </div>
                 <div class="w-full md:w-1/2 md:pl-10 mt-6 md:mt-0">
@@ -37,7 +37,7 @@
             <div class="flex flex-wrap items-center">
                 <div class="w-full md:w-1/2">
                     <div class="overflow-hidden rounded-lg shadow-lg">
-                        <img src="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/public/images/carousel4.jpg" alt="Étudiant heureux" class="w-full object-cover">
+                        <img src="/public/images/carousel4.jpg" alt="Étudiant heureux" class="w-full object-cover">
                     </div>
                 </div>
                 <div class="w-full md:w-1/2 md:pl-10">
@@ -57,7 +57,7 @@
             <div class="flex flex-wrap items-center">
                 <div class="w-full md:w-1/2">
                     <div class="overflow-hidden rounded-lg shadow-lg">
-                        <img src="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/public/images/carousel3.jpg" alt="Étudiant heureux" class="w-full object-cover">
+                        <img src="/public/images/carousel3.jpg" alt="Étudiant heureux" class="w-full object-cover">
                     </div>
                 </div>
                 <div class="w-full md:w-1/2 md:pl-10 mt-6 md:mt-0">
@@ -156,7 +156,7 @@
     <div class="relative flex flex-col items-center mx-auto lg:flex-row-reverse lg:max-w-5xl xl:max-w-6xl">
         <!-- Image Column -->
         <div class="w-full h-64 lg:w-1/2 lg:h-auto">
-            <img class="h-full w-full object-cover rounded-lg shadow-lg" src="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/public/images/etudier-en-france.jpg" alt="Étudier en France">
+            <img class="h-full w-full object-cover rounded-lg shadow-lg" src="/public/images/etudier-en-france.jpg" alt="Étudier en France">
         </div>
 
         <!-- Text Column -->

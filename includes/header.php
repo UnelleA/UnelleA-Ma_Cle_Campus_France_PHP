@@ -48,13 +48,29 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- <link rel="stylesheet" href="/css/style.css"> -->
-    <link rel="stylesheet" href="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/public/css/style.css">
+    <link rel="stylesheet" href="/public/css/style.css">
 
 
     <!-- <script src="https://cdn.tailwindcss.com"></script> -->
 
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const newTopicBtn = document.getElementById('new-topic-btn');
+    const newTopicForm = document.getElementById('new-topic-form');
+    const cancelTopicBtn = document.getElementById('cancel-topic-btn');
 
+    if (newTopicBtn && newTopicForm && cancelTopicBtn) {
+        newTopicBtn.addEventListener('click', function() {
+            newTopicForm.classList.toggle('hidden');
+        });
+
+        cancelTopicBtn.addEventListener('click', function() {
+            newTopicForm.classList.add('hidden');
+        });
+    }
+});
+</script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -74,7 +90,7 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
                 <div class="flex items-center space-x-4">
                 
                     <a href="index.php" class="font-bold text-xl">
-                    <img src="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/public/images/Blanc_logo_MCCF.svg" alt="Logo" class="h-14">
+                    <img src="/public/images/Blanc_logo_MCCF.svg" alt="Logo" class="h-14">
                     </a>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -110,6 +126,8 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
                 </div>
             </div>
         </div>
+        
+        <?php if( !isset($_GET["page"])  || ( ($_GET["page"] != 'login')  &&  ($_GET["page"] != 'register')  ) )  {   ?>
         
         <!-- Main Navigation -->
         <nav class="bg-white shadow-md">
@@ -194,6 +212,7 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
             </div>
         </nav>
 
+        <?php }      ?>
     </div>
     
     <!-- Main Content -->

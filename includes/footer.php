@@ -7,7 +7,7 @@
                     <!-- Logo et description -->
                     <div class="md:col-span-1">
                         <a href="index.php" class="inline-block mb-4">
-                            <img src="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/public/images/Blanc_logo_MCCF.svg" alt="Logo" class="h-14">
+                            <img src="/public/images/Blanc_logo_MCCF.svg" alt="Logo" class="h-14">
                         </a>
                         <p class="text-gray-400 text-sm">
                             Ma Clé Campus France vous accompagne dans toutes vos démarches pour étudier en France.
@@ -109,5 +109,7 @@
                 }
             });
         </script>
+        
+
     </body>
 </html>

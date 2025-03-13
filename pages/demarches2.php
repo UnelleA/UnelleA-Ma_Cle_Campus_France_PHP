@@ -32,7 +32,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- <link rel="stylesheet" href="/css/style.css"> -->
-    <link rel="stylesheet" href="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/public/css/style.css">
+    <link rel="stylesheet" href="/public/css/style.css">
 
 
     <!-- <script src="https://cdn.tailwindcss.com"></script> -->
@@ -58,7 +58,7 @@
                 <div class="flex items-center space-x-4">
                 
                     <a href="index.php" class="font-bold text-xl">
-                    <img src="<?php echo dirname($_SERVER['SCRIPT_NAME']); ?>/public/images/Blanc_logo_MCCF.svg" alt="Logo" class="h-14">
+                    <img src="/public/images/Blanc_logo_MCCF.svg" alt="Logo" class="h-14">
     
                     <!-- <img src="/public/images/logo_MCCF.svg" alt="Logo" class="h-14"> -->
                     </a>

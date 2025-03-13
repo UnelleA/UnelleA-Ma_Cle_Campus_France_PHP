@@ -128,11 +128,14 @@ switch ($action) {
         try {
             $stmt = $pdo->prepare("INSERT INTO forum_topics (title, content, category, user_id, file_path, created_at, views) VALUES (?, ?, ?, ?, ?, NOW(), 0)");
             $stmt->execute([$title, $content, $category, $user_id, $file_path]);
-            
+        
             $topic_id = $pdo->lastInsertId();
-            
+        
             if ($topic_id) {
-                exit(json_encode(['success' => true, 'topic_id' => $topic_id, 'message' => 'Discussion créée avec succès']));
+                // Retourner l'URL de redirection
+                $redirect_url = "/index.php?page=forum&action=view&topic_id=" . $topic_id;
+                header("Location: " . $redirect_url);
+                exit(json_encode(['success' => true, 'topic_id' => $topic_id, 'redirect_url' => $redirect_url, 'message' => 'Discussion créée avec succès']));
             } else {
                 throw new Exception("Impossible de récupérer l'ID de la discussion");
             }
