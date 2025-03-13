@@ -84,18 +84,60 @@ if ($action == 'view' && $topic_id > 0):
             }
             ?>
             <div class="p-6 bg-white rounded-lg shadow-md">
-                <h2 class="text-2xl font-semibold text-gray-900"><?php echo htmlspecialchars($topic['title']); ?></h2>
-                <div class="flex items-center space-x-4 text-sm text-gray-600 mt-2">
-                    <span class="px-3 py-1 rounded-full <?php echo $category_class; ?>"><?php echo $category_name; ?></span>
-                    <span>Posté par <strong><?php echo htmlspecialchars($topic['name']); ?></strong></span>
-                    <span><?php echo $formatted_date; ?></span>
+            <h2 class="text-2xl font-semibold text-gray-900"><?php echo htmlspecialchars($topic['title']); ?></h2>
+            <div class="flex items-center space-x-4 text-sm text-gray-600 mt-2">
+                <span class="px-3 py-1 rounded-full <?php echo $category_class; ?>"><?php echo $category_name; ?></span>
+                <span>Posté par <strong><?php echo htmlspecialchars($topic['name']); ?></strong></span>
+                <span><?php echo $formatted_date; ?></span>
+            </div>
+            <div class="mt-4 text-gray-700">
+                <p><?php echo nl2br(htmlspecialchars($topic['content'])); ?></p>
+            </div>
+
+            <!-- Afficher le fichier joint s'il existe -->
+            <?php if (!empty($topic['file_path'])): ?>
+                <div class="mt-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Fichier joint :</h3>
+                    <?php
+                    $file_extension = strtolower(pathinfo($topic['file_path'], PATHINFO_EXTENSION));
+                    $file_name = basename($topic['file_path']);
+                    ?>
+                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <?php if (in_array($file_extension, ['jpg', 'jpeg', 'png', 'gif'])): ?>
+                            <!-- Image -->
+                            <img src="<?php echo htmlspecialchars($topic['file_path']); ?>" alt="Image jointe" class="max-w-full max-h-96 rounded">
+                        <?php elseif (in_array($file_extension, ['pdf'])): ?>
+                            <!-- PDF -->
+                            <div class="flex items-center">
+                                <i class="fas fa-file-pdf text-red-500 text-2xl mr-2"></i>
+                                <div>
+                                    <div class="font-medium"><?php echo htmlspecialchars($file_name); ?></div>
+                                    <a href="<?php echo htmlspecialchars($topic['file_path']); ?>" target="_blank" class="text-blue-500 hover:underline text-sm">Ouvrir le PDF</a>
+                                </div>
+                            </div>
+                        <?php elseif (in_array($file_extension, ['mp4', 'avi', 'mov'])): ?>
+                            <!-- Vidéo -->
+                            <video controls class="max-w-full max-h-96 rounded">
+                                <source src="<?php echo htmlspecialchars($topic['file_path']); ?>" type="video/<?php echo $file_extension; ?>">
+                                Votre navigateur ne supporte pas la lecture de vidéos.
+                            </video>
+                        <?php else: ?>
+                            <!-- Autres types de fichiers -->
+                            <div class="flex items-center">
+                                <i class="fas fa-file text-gray-500 text-2xl mr-2"></i>
+                                <div>
+                                    <div class="font-medium"><?php echo htmlspecialchars($file_name); ?></div>
+                                    <a href="<?php echo htmlspecialchars($topic['file_path']); ?>" download class="text-blue-500 hover:underline text-sm">Télécharger</a>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
-                <div class="mt-4 text-gray-700">
-                    <p><?php echo nl2br(htmlspecialchars($topic['content'])); ?></p>
-                </div>
-                <div class="mt-6">
-                    <button id="reply-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"><i class="fas fa-reply"></i> Répondre</button>
-                </div>
+            <?php endif; ?>
+
+            <div class="mt-6">
+                <button id="reply-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"><i class="fas fa-reply"></i> Répondre</button>
+            </div>
 
                 <?php
                 // Récupération des réponses
