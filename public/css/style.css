@@ -1,0 +1,19 @@
+/* styles des boutons */
+.custom-button {
+  background-color: #0163cb; /* Bleu principal */
+  color: white;
+
+  padding: 12px 24px; /* Correspond à py-3 px-6 en Tailwind */
+  margin-top: 1rem; /* Correspond à mt-6 */
+  border-radius: 9999px; /* Rounded-full */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Shadow-md */
+  transition: all 0.3s ease-in-out;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+}
+
+.custom-button:hover {
+  background-color: #014c9d; /* Bleu foncé au survol */
+  transform: scale(1.05); /* Effet d’agrandissement */
+}
