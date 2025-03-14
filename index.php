@@ -25,9 +25,14 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'accueil';
 // Toutes les pages sont accessibles sans connexion
 // Aucune redirection automatique vers le dashboard pour les admins
 // (seulement lors de la connexion)
+var_dump($page);
 
 // Inclusion de l'en-tête
 include 'includes/header.php';
+if($page == 'admin')
+{
+    header('Location: admin/admin_dashboard.php');
+}
 
 // Inclusion de la page demandée
 $file_path = 'pages/' . $page . '.php';

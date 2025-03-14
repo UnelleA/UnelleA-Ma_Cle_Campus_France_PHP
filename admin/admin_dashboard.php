@@ -3,7 +3,7 @@
 session_start();
 
 // Vérification des droits d'administration
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
+if (!(isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'admin') ) {
     // Redirection vers la page d'accueil si l'utilisateur n'est pas administrateur
     header('Location: ../index.php');
     exit;
@@ -15,12 +15,13 @@ $_SESSION['admin_csrf_token'] = $csrf_token;
 
 // Connexion à la base de données
 require_once '../config/database.php';
-try {
-    $db = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8", $db_user, $db_pass);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Erreur de connexion à la base de données: " . $e->getMessage());
+global $pdo;
+$db = $pdo; // Utiliser la connexion PDO existante
+if (!$db) {
+    die("Erreur de connexion à la base de données.");
 }
+
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // Récupération des statistiques globales
 try {
@@ -80,7 +81,7 @@ try {
     // Utilisateurs les plus actifs (top 10)
     $stmt = $db->query("SELECT 
                             u.id, 
-                            u.username, 
+                            u.name, 
                             COUNT(a.id) as post_count
                         FROM 
                             users u
@@ -371,10 +372,10 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                                     <td class="py-4 px-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary-light flex items-center justify-center text-primary font-bold">
-                                                <?php echo strtoupper(substr($user['username'], 0, 1)); ?>
+                                                <?php echo strtoupper(substr($user['name'], 0, 1)); ?>
                                             </div>
                                             <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($user['username']); ?></div>
+                                                <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($user['name']); ?></div>
                                             </div>
                                         </div>
                                     </td>
@@ -482,7 +483,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                             ?>
                             <div class="mb-6 flex justify-between items-center">
                                 <div>
-                                    <h1 class="text-2xl font-bold text-gray-800 mb-2">Profil de <?php echo htmlspecialchars($user['username']); ?></h1>
+                                    <h1 class="text-2xl font-bold text-gray-800 mb-2">Profil de <?php echo htmlspecialchars($user['name']); ?></h1>
                                     <p class="text-gray-600">Gestion et statistiques de l'utilisateur</p>
                                 </div>
                                 <a href="?section=users" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-lg transition">
@@ -495,11 +496,11 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                                 <div class="flex flex-col md:flex-row md:items-center">
                                     <div class="flex-shrink-0 mb-4 md:mb-0 md:mr-6">
                                         <div class="w-24 h-24 rounded-full bg-primary-light flex items-center justify-center text-primary text-4xl font-bold">
-                                            <?php echo strtoupper(substr($user['username'], 0, 1)); ?>
+                                            <?php echo strtoupper(substr($user['name'], 0, 1)); ?>
                                         </div>
                                     </div>
                                     <div class="flex-grow">
-                                        <h2 class="text-2xl font-bold text-gray-800"><?php echo htmlspecialchars($user['username']); ?></h2>
+                                        <h2 class="text-2xl font-bold text-gray-800"><?php echo htmlspecialchars($user['name']); ?></h2>
                                         <p class="text-gray-600"><?php echo htmlspecialchars($user['email']); ?></p>
                                         <p class="text-sm text-gray-500 mt-1">Membre depuis <?php echo date('d/m/Y', strtotime($user['created_at'])); ?></p>
                                         
@@ -518,7 +519,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                                     <div class="mt-6 md:mt-0">
                                         <button class="delete-user-btn bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition" 
                                                 data-id="<?php echo $user['id']; ?>" 
-                                                data-name="<?php echo htmlspecialchars($user['username']); ?>">
+                                                data-name="<?php echo htmlspecialchars($user['name']); ?>">
                                             <i class="fas fa-user-times mr-2"></i>Supprimer l'utilisateur
                                         </button>
                                     </div>
@@ -789,8 +790,8 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                                 <select id="sort" name="sort" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
                                     <option value="activity_desc">Activité (décroissant)</option>
                                     <option value="activity_asc">Activité (croissant)</option>
-                                    <option value="username_asc">Nom d'utilisateur (A-Z)</option>
-                                    <option value="username_desc">Nom d'utilisateur (Z-A)</option>
+                                    <option value="name_asc">Nom d'utilisateur (A-Z)</option>
+                                    <option value="name_desc">Nom d'utilisateur (Z-A)</option>
                                     <option value="date_desc">Date d'inscription (récent)</option>
                                     <option value="date_asc">Date d'inscription (ancien)</option>
                                 </select>
@@ -911,11 +912,11 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                             <?php endif; ?>
                             <?php if ($user_id > 0): 
                                 try {
-                                    $stmt = $db->prepare("SELECT username FROM users WHERE id = ?");
+                                    $stmt = $db->prepare("SELECT name FROM users WHERE id = ?");
                                     $stmt->execute([$user_id]);
-                                    $username = $stmt->fetchColumn();
-                                    if ($username) {
-                                        echo ' de ' . htmlspecialchars($username);
+                                    $name = $stmt->fetchColumn();
+                                    if ($name) {
+                                        echo ' de ' . htmlspecialchars($name);
                                     }
                                 } catch (PDOException $e) {
                                     // Ignorer l'erreur
@@ -928,7 +929,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                     try {
                         // Construction de la requête SQL de base
                         if ($type == 'topics') {
-                            $sql = "SELECT t.*, u.username, 
+                            $sql = "SELECT t.*, u.name, 
                                     (SELECT COUNT(*) FROM forum_replies WHERE topic_id = t.id) as reply_count 
                                     FROM forum_topics t 
                                     JOIN users u ON t.user_id = u.id 
@@ -976,7 +977,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                             }
                             
                             // Requête pour compter le nombre total de discussions
-                            $count_sql = str_replace("SELECT t.*, u.username, (SELECT COUNT(*) FROM forum_replies WHERE topic_id = t.id) as reply_count", "SELECT COUNT(*)", $sql);
+                            $count_sql = str_replace("SELECT t.*, u.name, (SELECT COUNT(*) FROM forum_replies WHERE topic_id = t.id) as reply_count", "SELECT COUNT(*)", $sql);
                             $count_stmt = $db->prepare($count_sql);
                             $count_stmt->execute($params);
                             $total_items = $count_stmt->fetchColumn();
@@ -1049,7 +1050,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                                     echo '<div class="text-sm font-medium text-gray-900">' . htmlspecialchars($item['title']) . '</div>';
                                     echo '</td>';
                                     echo '<td class="py-4 px-4">';
-                                    echo '<div class="text-sm text-gray-900">' . htmlspecialchars($item['username']) . '</div>';
+                                    echo '<div class="text-sm text-gray-900">' . htmlspecialchars($item['name']) . '</div>';
                                     echo '</td>';
                                     echo '<td class="py-4 px-4">';
                                     echo '<span class="px-2 py-1 rounded-full text-xs font-medium ' . $category_class . '">' . $category_name . '</span>';
@@ -1126,7 +1127,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                             }
                         } else {
                             // Affichage des réponses
-                            $sql = "SELECT r.*, t.title as topic_title, t.id as topic_id, u.username 
+                            $sql = "SELECT r.*, t.title as topic_title, t.id as topic_id, u.name 
                                     FROM forum_replies r 
                                     JOIN forum_topics t ON r.topic_id = t.id 
                                     JOIN users u ON r.user_id = u.id 
@@ -1162,7 +1163,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                             }
                             
                             // Requête pour compter le nombre total de réponses
-                            $count_sql = str_replace("SELECT r.*, t.title as topic_title, t.id as topic_id, u.username", "SELECT COUNT(*)", $sql);
+                            $count_sql = str_replace("SELECT r.*, t.title as topic_title, t.id as topic_id, u.name", "SELECT COUNT(*)", $sql);
                             $count_stmt = $db->prepare($count_sql);
                             $count_stmt->execute($params);
                             $total_items = $count_stmt->fetchColumn();
@@ -1206,7 +1207,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                                     echo '<div class="text-sm text-gray-500 truncate max-w-xs">' . htmlspecialchars(substr($item['content'], 0, 100)) . (strlen($item['content']) > 100 ? '...' : '') . '</div>';
                                     echo '</td>';
                                     echo '<td class="py-4 px-4">';
-                                    echo '<div class="text-sm text-gray-900">' . htmlspecialchars($item['username']) . '</div>';
+                                    echo '<div class="text-sm text-gray-900">' . htmlspecialchars($item['name']) . '</div>';
                                     echo '</td>';
                                     echo '<td class="py-4 px-4">';
                                     echo '<div class="text-sm text-gray-500">' . $formatted_date . '</div>';
@@ -1362,11 +1363,11 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                             <?php endif; ?>
                             <?php if ($user_id > 0): 
                                 try {
-                                    $stmt = $db->prepare("SELECT username FROM users WHERE id = ?");
+                                    $stmt = $db->prepare("SELECT name FROM users WHERE id = ?");
                                     $stmt->execute([$user_id]);
-                                    $username = $stmt->fetchColumn();
-                                    if ($username) {
-                                        echo ' de ' . htmlspecialchars($username);
+                                    $name = $stmt->fetchColumn();
+                                    if ($name) {
+                                        echo ' de ' . htmlspecialchars($name);
                                     }
                                 } catch (PDOException $e) {
                                     // Ignorer l'erreur
@@ -1380,7 +1381,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                         // Construction de la requête SQL
                         $sql = "SELECT 
                                     f.*, 
-                                    u.username,
+                                    u.name,
                                     CASE 
                                         WHEN f.type = 'topic' THEN t.title 
                                         ELSE (SELECT title FROM forum_topics WHERE id = r.topic_id) 
@@ -1466,7 +1467,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                         }
                         
                         // Requête pour compter le nombre total de fichiers
-                        $count_sql = preg_replace('/SELECT\s+f\.\*,\s+u\.username,\s+CASE.*?END\s+as\s+content_title/i', 'SELECT COUNT(*)', $sql);
+                        $count_sql = preg_replace('/SELECT\s+f\.\*,\s+u\.name,\s+CASE.*?END\s+as\s+content_title/i', 'SELECT COUNT(*)', $sql);
                         $count_stmt = $db->prepare($count_sql);
                         $count_stmt->execute($params);
                         $total_items = $count_stmt->fetchColumn();
@@ -1535,7 +1536,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
 
                                 echo '</div>';
                                 echo '<div class="text-xs text-gray-500 mb-2">';
-                                echo 'Par ' . htmlspecialchars($file['username']) . ' · ' . date('d/m/Y H:i', strtotime($file['created_at']));
+                                echo 'Par ' . htmlspecialchars($file['name']) . ' · ' . date('d/m/Y H:i', strtotime($file['created_at']));
                                 echo '</div>';
                                 echo '<div class="text-xs text-gray-500 mb-3">';
                                 echo 'Dans ' . ($file['type'] == 'topic' ? 'la discussion' : 'une réponse à') . ': ' . htmlspecialchars($file['content_title']);
@@ -1745,8 +1746,8 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                                 document.querySelectorAll('.delete-user-btn').forEach(btn => {
                                     btn.addEventListener('click', function() {
                                         userIdToDelete = this.getAttribute('data-id');
-                                        const userName = this.getAttribute('data-name');
-                                        document.getElementById('delete-user-name').textContent = userName;
+                                        const name = this.getAttribute('data-name');
+                                        document.getElementById('delete-user-name').textContent = name;
                                         document.getElementById('delete-user-modal').classList.remove('hidden');
                                     });
                                 });
@@ -1817,8 +1818,8 @@ $section = isset($_GET['section']) ? $_GET['section'] : 'dashboard';
                 deleteUserBtns.forEach(btn => {
                     btn.addEventListener('click', function() {
                         userIdToDelete = this.getAttribute('data-id');
-                        const userName = this.getAttribute('data-name');
-                        document.getElementById('delete-user-name').textContent = userName;
+                        const name = this.getAttribute('data-name');
+                        document.getElementById('delete-user-name').textContent = name;
                         deleteUserModal.classList.remove('hidden');
                     });
                 });

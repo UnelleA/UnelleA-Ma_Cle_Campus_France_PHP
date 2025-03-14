@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="flex items-center space-x-4">
                     <?php if (is_logged_in()): ?>
                         <?php if (is_admin()): ?>
-                            <a href="admin/admin_dashboard.php" class="hover:text-primary-light">
+                            <a href="index.php?page=admin" class="hover:text-primary-light">
                                 <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
                             </a>
                         <?php endif; ?>
